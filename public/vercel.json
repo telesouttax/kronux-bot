@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/interactions", "destination": "/api/interactions.js" },
+    { "source": "/api/register", "destination": "/api/register.js" }
+  ]
+}

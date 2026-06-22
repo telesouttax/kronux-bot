@@ -1,0 +1,7 @@
+{
+  "name": "kronux-bot",
+  "version": "1.0.0",
+  "description": "KRONUX — Bot gamer para Discord",
+  "type": "module",
+  "engines": { "node": ">=18" }
+}
