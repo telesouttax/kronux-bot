@@ -29,88 +29,243 @@ function respond(data) {
   return new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } });
 }
 
+// ── Permissões Discord ────────────────────────────────────────────────────────
+const PERMS = {
+  ADMIN:                    0x8n,
+  MANAGE_GUILD:             0x20n,
+  MANAGE_CHANNELS:          0x10n,
+  MANAGE_ROLES:             0x10000000n,
+  MANAGE_MESSAGES:          0x2000n,
+  KICK_MEMBERS:             0x2n,
+  BAN_MEMBERS:              0x4n,
+  MODERATE_MEMBERS:         0x400000000n,
+  MOVE_MEMBERS:             0x1000000n,
+  MUTE_MEMBERS:             0x400000n,
+  DEAFEN_MEMBERS:           0x800000n,
+  VIEW_AUDIT_LOG:           0x80n,
+  SEND_MESSAGES:            0x800n,
+  READ_MESSAGE_HISTORY:     0x10000n,
+  VIEW_CHANNEL:             0x400n,
+  CONNECT:                  0x100000n,
+  SPEAK:                    0x200000n,
+  STREAM:                   0x200n,
+  USE_APPLICATION_COMMANDS: 0x80000000n,
+  ADD_REACTIONS:            0x40n,
+  ATTACH_FILES:             0x8000n,
+  EMBED_LINKS:              0x4000n,
+  MENTION_EVERYONE:         0x20000n,
+  MANAGE_WEBHOOKS:          0x20000000n,
+  PRIORITY_SPEAKER:         0x100n,
+};
+
+function calcPerms(...flags) {
+  return flags.reduce((acc, f) => acc | f, 0n).toString();
+}
+
 // ── Textos prontos ────────────────────────────────────────────────────────────
-
 const TEXTOS = {
-  regras: `# 📜 REGRAS DO SERVIDOR
+  regras: `# 📜 REGRAS DO SERVIDOR — KRONUX
 
-**Bem-vindo ao servidor! Para manter um ambiente saudável e divertido, siga as regras abaixo:**
+**Bem-vindo! Para manter um ambiente saudável e divertido, siga as regras:**
 
 **1️⃣ Respeito acima de tudo**
-Trate todos com respeito. Não serão tolerados xingamentos, bullying, racismo, homofobia ou qualquer tipo de discriminação.
+Trate todos com respeito. Não toleramos xingamentos, bullying, racismo ou qualquer tipo de discriminação.
 
 **2️⃣ Sem spam**
-Não envie mensagens repetidas, flood ou conteúdo irrelevante nos canais. Cada canal tem seu propósito.
+Não envie mensagens repetidas, flood ou conteúdo irrelevante. Cada canal tem seu propósito.
 
 **3️⃣ Sem divulgação não autorizada**
-Proibido divulgar outros servidores, links suspeitos ou propaganda sem autorização da staff.
+Proibido divulgar outros servidores ou links suspeitos sem autorização da staff.
 
 **4️⃣ Sem cheats ou hacks**
-Qualquer discussão sobre trapaças, cheats ou exploits nos jogos é proibida e resultará em ban imediato.
+Qualquer discussão sobre trapaças ou exploits é proibida e resultará em ban imediato.
 
 **5️⃣ Fale no canal certo**
-Use os canais de acordo com o tema. Valorant no canal do Valorant, CS2 no canal do CS2, etc.
+Use os canais de acordo com o tema. Valorant no canal do Valorant, CS2 no canal do CS2.
 
 **6️⃣ Sem conteúdo adulto**
-Proibido enviar conteúdo NSFW, violento ou perturbador em qualquer canal.
+Proibido enviar conteúdo NSFW ou violento em qualquer canal.
 
 **7️⃣ Respeite a staff**
 As decisões da staff são finais. Em caso de dúvidas, abra um ticket.
 
-**8️⃣ Divirta-se!**
-Estamos aqui para jogar e fazer amigos. Boa sorte nos jogos! 🎮
+**8️⃣ Divirta-se!** 🎮
 
-> ⚠️ O descumprimento das regras resultará em advertência, mute ou ban dependendo da gravidade.`,
+> ⚠️ O descumprimento resulta em advertência, mute ou ban conforme a gravidade.`,
 
-  boasVindas: `# 👋 BEM-VINDO AO KRONUX!
+  boasVindas: `# 👋 BEM-VINDO AO KRONUX! 🐉⚡
 
-🐉⚡ **O servidor definitivo para gamers brasileiros!**
+**O servidor definitivo para gamers brasileiros!**
 
 Aqui você vai encontrar:
-- 🎮 Canais dedicados para os maiores jogos do Brasil
+- 🎮 Canais para Valorant, CS2, Free Fire, LoL, Fortnite e muito mais
 - 🏆 Torneios e eventos exclusivos
 - 👥 Uma comunidade ativa e respeitosa
-- 📢 Novidades e atualizações dos seus jogos favoritos
-- 🎯 Canais para encontrar squad e jogar com amigos
+- 🎯 Canais para encontrar squad
 
 **Para começar:**
-1. Leia as 📜 **#regras** para não levar ban
+1. Leia as 📜 **#regras**
 2. Pegue seus 🎭 **#cargos** de acordo com os jogos que você joga
 3. Apresente-se no 👋 **#apresentacoes**
-4. Encontre seu canal favorito e bora jogar!
+4. Bora jogar! 🎮
 
 **GG e bem-vindo à família KRONUX!** 🐉`,
 
   faq: `# ❓ FAQ — PERGUNTAS FREQUENTES
 
 **❔ Como pego meu cargo de jogo?**
-Vá no canal 🎭 #cargos e reaja com o emoji do seu jogo favorito.
+Vá em 🎭 #cargos e reaja com o emoji do seu jogo favorito.
 
 **❔ Como entro nos torneios?**
-Fique de olho no canal 📢 #anuncios. Quando abrir inscrições, siga as instruções do post.
+Fique de olho em 📢 #anuncios. Quando abrir inscrições, siga as instruções.
 
-**❔ Fui banido/mutado injustamente, o que faço?**
-Abra um ticket no canal 🎫 #suporte explicando o ocorrido.
-
-**❔ Posso divulgar meu servidor ou canal?**
-Não. Divulgação não autorizada resulta em ban imediato.
+**❔ Fui banido injustamente, o que faço?**
+Abra um ticket em 🎫 #suporte explicando o ocorrido.
 
 **❔ Como me torno staff?**
-Fique de olho no canal 📢 #anuncios. Abrimos seleção de staff periodicamente.
+Fique de olho em 📢 #anuncios. Abrimos seleção periodicamente.
 
-**❔ Tem canal de voz para jogar junto?**
-Sim! Cada jogo tem seu próprio canal de voz. Basta entrar e jogar!
+**❔ Posso divulgar meu canal?**
+Não. Divulgação não autorizada resulta em ban imediato.
 
-**❔ Posso sugerir algo para o servidor?**
-Claro! Mande sua sugestão no canal 💡 #sugestoes.
+**❔ Tem voz para jogar junto?**
+Sim! Cada jogo tem seus próprios canais de voz.
 
-**❔ O servidor é BR only?**
-Sim, somos um servidor brasileiro. Fale português nos canais.`,
+**❔ Como viro VIP?**
+Entre em contato com a staff para saber sobre o programa VIP.`,
 };
 
 // ── Setup Gamer ───────────────────────────────────────────────────────────────
-
 async function handleSetupGamer(guildId) {
+  // Cargos com permissões específicas
+  const cargos = [
+    {
+      name: '👑 KRONLORD',
+      color: 0xffd700,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(PERMS.ADMIN),
+      desc: 'Dono absoluto',
+    },
+    {
+      name: '🐉 DRAKVEIL',
+      color: 0xff0000,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(
+        PERMS.MANAGE_GUILD, PERMS.MANAGE_CHANNELS, PERMS.MANAGE_ROLES,
+        PERMS.BAN_MEMBERS, PERMS.KICK_MEMBERS, PERMS.MANAGE_MESSAGES,
+        PERMS.MODERATE_MEMBERS, PERMS.VIEW_AUDIT_LOG, PERMS.MOVE_MEMBERS,
+        PERMS.MANAGE_WEBHOOKS, PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL,
+        PERMS.CONNECT, PERMS.SPEAK, PERMS.STREAM, PERMS.USE_APPLICATION_COMMANDS,
+      ),
+      desc: 'Co-Dono',
+    },
+    {
+      name: '⚡ VORTEXUS',
+      color: 0xff6600,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(
+        PERMS.MANAGE_CHANNELS, PERMS.MANAGE_ROLES, PERMS.BAN_MEMBERS,
+        PERMS.KICK_MEMBERS, PERMS.MANAGE_MESSAGES, PERMS.MODERATE_MEMBERS,
+        PERMS.VIEW_AUDIT_LOG, PERMS.MOVE_MEMBERS, PERMS.SEND_MESSAGES,
+        PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK, PERMS.USE_APPLICATION_COMMANDS,
+      ),
+      desc: 'Admin',
+    },
+    {
+      name: '🛡️ SHIELDRIX',
+      color: 0xffaa00,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(
+        PERMS.MANAGE_MESSAGES, PERMS.MODERATE_MEMBERS, PERMS.KICK_MEMBERS,
+        PERMS.MOVE_MEMBERS, PERMS.MUTE_MEMBERS, PERMS.DEAFEN_MEMBERS,
+        PERMS.VIEW_AUDIT_LOG, PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL,
+        PERMS.CONNECT, PERMS.SPEAK, PERMS.USE_APPLICATION_COMMANDS,
+      ),
+      desc: 'Moderador',
+    },
+    {
+      name: '🔮 MYSTARA',
+      color: 0x9b59b6,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(
+        PERMS.MOVE_MEMBERS, PERMS.MANAGE_MESSAGES, PERMS.VIEW_AUDIT_LOG,
+        PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK,
+        PERMS.USE_APPLICATION_COMMANDS, PERMS.ADD_REACTIONS,
+      ),
+      desc: 'Helper',
+    },
+    {
+      name: '🔥 BLAZECOR',
+      color: 0xff4655,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(
+        PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK,
+        PERMS.USE_APPLICATION_COMMANDS, PERMS.ADD_REACTIONS, PERMS.ATTACH_FILES,
+        PERMS.EMBED_LINKS, PERMS.PRIORITY_SPEAKER,
+      ),
+      desc: 'Pro Player',
+    },
+    {
+      name: '🎥 STREAMVEX',
+      color: 0x6441a5,
+      hoist: true,
+      mentionable: true,
+      permissions: calcPerms(
+        PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK,
+        PERMS.STREAM, PERMS.USE_APPLICATION_COMMANDS, PERMS.ADD_REACTIONS,
+        PERMS.ATTACH_FILES, PERMS.EMBED_LINKS,
+      ),
+      desc: 'Streamer',
+    },
+    {
+      name: '💎 VAULTIS',
+      color: 0x00d4ff,
+      hoist: true,
+      mentionable: false,
+      permissions: calcPerms(
+        PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK,
+        PERMS.USE_APPLICATION_COMMANDS, PERMS.ADD_REACTIONS, PERMS.ATTACH_FILES,
+        PERMS.EMBED_LINKS,
+      ),
+      desc: 'VIP',
+    },
+    {
+      name: '⚔️ IRONBORN',
+      color: 0x2ecc71,
+      hoist: true,
+      mentionable: false,
+      permissions: calcPerms(
+        PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK,
+        PERMS.USE_APPLICATION_COMMANDS, PERMS.ADD_REACTIONS, PERMS.ATTACH_FILES,
+        PERMS.EMBED_LINKS, PERMS.READ_MESSAGE_HISTORY,
+      ),
+      desc: 'Membro verificado',
+    },
+    {
+      name: '🆕 SPAWNLING',
+      color: 0x95a5a6,
+      hoist: false,
+      mentionable: false,
+      permissions: calcPerms(
+        PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK,
+        PERMS.USE_APPLICATION_COMMANDS, PERMS.ADD_REACTIONS, PERMS.READ_MESSAGE_HISTORY,
+      ),
+      desc: 'Novato',
+    },
+    // Cargos de jogo (sem hoist, só para identificação)
+    { name: '🎯 Valorant', color: 0xff4655, hoist: false, mentionable: true, permissions: calcPerms(PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK), desc: 'Jogador de Valorant' },
+    { name: '💣 CS2', color: 0xf0a500, hoist: false, mentionable: true, permissions: calcPerms(PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK), desc: 'Jogador de CS2' },
+    { name: '🔥 Free Fire', color: 0xff6b35, hoist: false, mentionable: true, permissions: calcPerms(PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK), desc: 'Jogador de Free Fire' },
+    { name: '⚡ LoL', color: 0x00d4ff, hoist: false, mentionable: true, permissions: calcPerms(PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK), desc: 'Jogador de LoL' },
+    { name: '🌀 Fortnite', color: 0x9b59b6, hoist: false, mentionable: true, permissions: calcPerms(PERMS.SEND_MESSAGES, PERMS.VIEW_CHANNEL, PERMS.CONNECT, PERMS.SPEAK), desc: 'Jogador de Fortnite' },
+  ];
+
   const estrutura = [
     {
       categoria: '🐉 ── KRONUX ──',
@@ -221,27 +376,19 @@ async function handleSetupGamer(guildId) {
     },
   ];
 
-  const cargos = [
-    { name: '👑 Dono', color: 0xff0000, hoist: true, mentionable: true },
-    { name: '⚡ Admin', color: 0xff6600, hoist: true, mentionable: true },
-    { name: '🛡️ Moderador', color: 0xffaa00, hoist: true, mentionable: true },
-    { name: '🎯 Valorant', color: 0xff4655, hoist: false, mentionable: true },
-    { name: '💣 CS2', color: 0xf0a500, hoist: false, mentionable: true },
-    { name: '🔥 Free Fire', color: 0xff6b35, hoist: false, mentionable: true },
-    { name: '⚡ LoL', color: 0x00d4ff, hoist: false, mentionable: true },
-    { name: '🌀 Fortnite', color: 0x9b59b6, hoist: false, mentionable: true },
-    { name: '🎮 Gamer', color: 0x2ecc71, hoist: true, mentionable: false },
-    { name: '🆕 Novato', color: 0x95a5a6, hoist: false, mentionable: false },
-  ];
-
   let criados = { categorias: 0, canais: 0, cargos: 0, mensagens: 0 };
 
-  // Cria cargos
+  // Cria cargos com permissões
   for (const cargo of cargos) {
     await discordRequest(`/guilds/${guildId}/roles`, 'POST', {
-      name: cargo.name, color: cargo.color, hoist: cargo.hoist, mentionable: cargo.mentionable,
+      name: cargo.name,
+      color: cargo.color,
+      hoist: cargo.hoist,
+      mentionable: cargo.mentionable,
+      permissions: cargo.permissions,
     });
     criados.cargos++;
+    await new Promise(r => setTimeout(r, 300));
   }
 
   // Cria categorias e canais
@@ -257,7 +404,6 @@ async function handleSetupGamer(guildId) {
       const canalCriado = await discordRequest(`/guilds/${guildId}/channels`, 'POST', body);
       criados.canais++;
 
-      // Posta texto se tiver
       if (canal.texto && canal.type === 0) {
         await new Promise(r => setTimeout(r, 500));
         await discordRequest(`/channels/${canalCriado.id}/messages`, 'POST', {
@@ -265,15 +411,12 @@ async function handleSetupGamer(guildId) {
         });
         criados.mensagens++;
       }
-
       await new Promise(r => setTimeout(r, 300));
     }
   }
 
-  return `⚡ **KRONUX Setup concluído!**\n📁 ${criados.categorias} categorias\n💬 ${criados.canais} canais\n🎭 ${criados.cargos} cargos\n📝 ${criados.mensagens} textos escritos automaticamente\n\n🐉 Seu servidor gamer está pronto!`;
+  return `⚡ **KRONUX Setup concluído!**\n\n🎭 **${criados.cargos} cargos criados:**\n👑 KRONLORD • 🐉 DRAKVEIL • ⚡ VORTEXUS • 🛡️ SHIELDRIX • 🔮 MYSTARA • 🔥 BLAZECOR • 🎥 STREAMVEX • 💎 VAULTIS • ⚔️ IRONBORN • 🆕 SPAWNLING\n+ Cargos de jogo: Valorant, CS2, Free Fire, LoL, Fortnite\n\n📁 ${criados.categorias} categorias · 💬 ${criados.canais} canais · 📝 ${criados.mensagens} textos escritos\n\n🐉 Seu servidor gamer está pronto!`;
 }
-
-// ── Main handler ──────────────────────────────────────────────────────────────
 
 export default async function handler(req) {
   if (req.method !== 'POST') return new Response('Método não permitido', { status: 405 });
