@@ -2,30 +2,40 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const APP_ID = process.env.DISCORD_APP_ID;
 const REGISTER_SECRET = process.env.REGISTER_SECRET;
 
+// integration_types: 0 = GUILD_INSTALL (comando instalado no servidor)
+// contexts: 0 = GUILD (só pode ser usado dentro de um servidor, nunca em DM)
+const GUILD_ONLY = { integration_types: [0], contexts: [0] };
+
 const commands = [
   {
     name: 'setup-gamer',
     description: '🐉 Configura o servidor completo com tema gamer',
+    ...GUILD_ONLY,
   },
   {
     name: 'perfil',
     description: '🎮 Veja seu card de jogador com XP, nível e cargo',
+    ...GUILD_ONLY,
   },
   {
     name: 'ranking',
     description: '🏆 Veja o top 10 de XP do servidor',
+    ...GUILD_ONLY,
   },
   {
     name: 'stats',
     description: '📊 Veja as estatísticas do servidor em tempo real',
+    ...GUILD_ONLY,
   },
   {
     name: 'ajuda',
     description: '❓ Lista todos os comandos disponíveis do KRONUX',
+    ...GUILD_ONLY,
   },
   {
     name: 'xp',
     description: '⭐ Ganhe XP enviando uma mensagem (teste)',
+    ...GUILD_ONLY,
   },
   {
     name: 'definir-bio',
@@ -33,6 +43,7 @@ const commands = [
     options: [
       { name: 'texto', description: 'Sua bio (máximo 200 caracteres)', type: 3, required: true },
     ],
+    ...GUILD_ONLY,
   },
   {
     name: 'definir-jogo',
@@ -50,6 +61,7 @@ const commands = [
         ],
       },
     ],
+    ...GUILD_ONLY,
   },
   {
     name: 'anunciar',
@@ -60,6 +72,7 @@ const commands = [
       { name: 'canal', description: 'Canal onde postar', type: 7, required: true },
       { name: 'mencionar', description: 'Mencionar @everyone?', type: 5, required: false },
     ],
+    ...GUILD_ONLY,
   },
 ];
 
