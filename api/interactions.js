@@ -23,7 +23,7 @@ async function discordRequest(endpoint, method = 'GET', body = null) {
     headers: { Authorization: `Bot ${BOT_TOKEN}`, 'Content-Type': 'application/json' },
     body: body ? JSON.stringify(body) : null,
   });
-  if (!res.ok) throw new Error(`Discord ${res.status}: ${await res.text()}`);
+  if (!res.ok) throw new Error(`Discord ${res.status} em ${method} ${endpoint}: ${await res.text()}`);
   return res.status === 204 ? null : res.json();
 }
 
