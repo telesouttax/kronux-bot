@@ -530,6 +530,10 @@ export default async function handler(req) {
   if (interaction.type===2) {
     const {name,options=[]} = interaction.data;
     const guildId = interaction.guild_id;
+    const GUILD_ONLY_COMMANDS = ['setup-gamer','stats','anunciar'];
+    if (GUILD_ONLY_COMMANDS.includes(name) && !guildId) {
+      return respond({type:4,data:{content:'❌ Este comando só funciona dentro de um servidor, não em DMs.',flags:64}});
+    }
     try {
       let result;
       if (name==='setup-gamer') result = await handleSetupGamer(guildId);
